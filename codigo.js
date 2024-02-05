@@ -4,18 +4,18 @@ class ProductManager {
   }
 
   addProducts(title, description, price, thumbnail, stock) {
-    let repeatedCode = this.products.find((p) => p.title === title);
-    if (repeatedCode) {
-      console.log("Código repetido: " + repeatedCode.title);
+    let repeatedItem = this.products.find((p) => p.title === title);
+    if (repeatedItem) {
+      console.log("Código repetido: " + repeatedItem.title);
       return;
     }
 
-    let id = 1;
+    let code = 1;
     if (this.products.length > 0) {
-      id = this.products[this.products.length - 1].id + 1;
+      code = this.products[this.products.length - 1].code + 1;
     }
 
-    let newProduct = { id, title, description, price, thumbnail, stock };
+    let newProduct = { code, title, description, price, thumbnail, stock };
     this.products.push(newProduct);
   }
 
@@ -24,7 +24,7 @@ class ProductManager {
   }
 
   getProductsById(id) {
-    let productFound = this.products.find((el) => el.id === id);
+    let productFound = this.products.find((el) => el.code === id);
 
     if (!productFound) {
       console.log("ID no encontrado");
