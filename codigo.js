@@ -45,7 +45,11 @@ class ProductManager {
   }
 
   getProducts() {
-    return this.products;
+    if(!fs.existsSync(this.path)){
+     return this.products = []
+    }
+    return (JSON.parse(fs.readFileSync(this.path, "utf8")));
+
   }
 
   getProductsById(id) {
@@ -99,6 +103,9 @@ class ProductManager {
 }
 
 let pm = new ProductManager();
+
+console.log(pm.getProducts());
+
 pm.addProducts(
   "producto prueba",
   "Este es un producto prueba",
@@ -128,7 +135,11 @@ pm.addProducts(
   25
 );
 
+
 pm.updateProducts(1, { price: 250 });
+
 pm.getProductsById(4);
+
 pm.deleteProducts(3);
+
 pm.loadProducts();
