@@ -1,6 +1,30 @@
+const fs = require("fs");
+
 class ProductManager {
-  constructor(products = []) {
-    this.products = products;
+  constructor(path = "./files/archivo.json") {
+    this.products = [];
+    this.path = path;
+  }
+
+  saveProducts() {
+    fs.writeFileSync(this.path, JSON.stringify(this.products, null, 5));
+  }
+
+  loadProducts() {
+    try {
+      const data = fs.readFileSync(this.path, "utf8");
+      this.products = JSON.parse(data);
+      console.log(`Los productos cargados son los siguientes: `);
+      console.log(this.products);
+    } catch (error) {
+      this.products = [];
+      console.log(this.products);
+    }
+  }
+
+  orderByCodeAsc() {
+    this.products.sort((a, b) => a.code - b.code);
+    this.saveProducts();
   }
 
   addProducts(title, description, price, thumbnail, stock) {
@@ -17,6 +41,7 @@ class ProductManager {
 
     let newProduct = { code, title, description, price, thumbnail, stock };
     this.products.push(newProduct);
+    this.saveProducts();
   }
 
   getProducts() {
@@ -31,16 +56,79 @@ class ProductManager {
       return;
     }
 
+    console.log(`El producto con id ${id} es el siguiente: `);
     console.log(productFound);
+  }
+
+  updateProducts(id, update) {
+    let updateProductIndex = this.products.findIndex(
+      (product) => product.code === id
+    );
+
+    if (updateProductIndex === -1) {
+      let error = new Error("El producto a actualizarse no se encuentra");
+      console.log(error);
+      return;
+    }
+
+    let updateProduct = { ...this.products[updateProductIndex], ...update };
+
+    this.products.push(updateProduct);
+    console.log("Producto actualizado con exito");
+    this.products.splice(updateProductIndex, 1);
+
+    this.orderByCodeAsc();
+
+    this.saveProducts();
+  }
+
+  deleteProducts(id) {
+    let productToDelete = this.products.findIndex(
+      (product) => product.code === id
+    );
+    if (productToDelete === -1) {
+      console.log("El producto a eliminarse no existe");
+      return;
+    }
+
+    this.products.splice(productToDelete, 1);
+    console.log("Producto eliminado con exito");
+    this.orderByCodeAsc();
+    this.saveProducts();
   }
 }
 
 let pm = new ProductManager();
-pm.addProducts("pan", "harina con levadura", 200, "imagen", 5);
-pm.addProducts("torta", "lemon pie", 100, "imagen", 8);
-pm.addProducts("jamon", "fiambre", 50, "imagen", 10);
-pm.addProducts("oreos", "galletitas", 40, "imagen", 14);
-pm.addProducts("jamon", "fiambre", 50, "imagen", 10);
+pm.addProducts(
+  "producto prueba",
+  "Este es un producto prueba",
+  200,
+  "Sin imagen",
+  25
+);
+pm.addProducts(
+  "producto prueba1",
+  "Este es un producto prueba",
+  200,
+  "Sin imagen",
+  25
+);
+pm.addProducts(
+  "producto prueba2",
+  "Este es un producto prueba",
+  200,
+  "Sin imagen",
+  25
+);
+pm.addProducts(
+  "producto prueba3",
+  "Este es un producto prueba",
+  200,
+  "Sin imagen",
+  25
+);
 
-console.log(pm.getProducts());
-pm.getProductsById(2);
+pm.updateProducts(1, { price: 250 });
+pm.getProductsById(4);
+pm.deleteProducts(3);
+pm.loadProducts();
