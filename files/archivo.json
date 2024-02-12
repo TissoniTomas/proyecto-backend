@@ -22,5 +22,13 @@
           "price": 200,
           "thumbnail": "Sin imagen",
           "stock": 25
+     },
+     {
+          "code": 5,
+          "title": "producto prueba4",
+          "description": "Este es un producto prueba",
+          "price": 200,
+          "thumbnail": "Sin imagen",
+          "stock": 25
      }
 ]

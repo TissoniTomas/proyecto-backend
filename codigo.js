@@ -96,7 +96,7 @@ class ProductManager {
     }
 
     this.products.splice(productToDelete, 1);
-    console.log("Producto eliminado con exito");
+    console.log(`Producto con id ${id} eliminado con exito`);
     this.orderByCodeAsc();
     this.saveProducts();
   }
@@ -104,7 +104,8 @@ class ProductManager {
 
 let pm = new ProductManager();
 
-console.log(pm.getProducts());
+
+// PRUEBAS 
 
 pm.addProducts(
   "producto prueba",
@@ -142,4 +143,15 @@ pm.getProductsById(4);
 
 pm.deleteProducts(3);
 
+
+
+pm.addProducts(
+  "producto prueba4",
+  "Este es un producto prueba",
+  200,
+  "Sin imagen",
+  25
+);
+
 pm.loadProducts();
+
