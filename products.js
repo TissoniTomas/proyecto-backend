@@ -108,30 +108,30 @@ let pm = new ProductManager();
 // PRUEBAS 
 
 pm.addProducts(
-  "producto prueba",
+  "producto prueba 1",
+  "Este es un producto prueba",
+  100,
+  "Sin imagen",
+  25
+);
+pm.addProducts(
+  "producto prueba 2",
+  "Este es un producto prueba",
+  300,
+  "Sin imagen",
+  25
+);
+pm.addProducts(
+  "producto prueba 3",
   "Este es un producto prueba",
   200,
   "Sin imagen",
   25
 );
 pm.addProducts(
-  "producto prueba1",
+  "producto prueba 4",
   "Este es un producto prueba",
-  200,
-  "Sin imagen",
-  25
-);
-pm.addProducts(
-  "producto prueba2",
-  "Este es un producto prueba",
-  200,
-  "Sin imagen",
-  25
-);
-pm.addProducts(
-  "producto prueba3",
-  "Este es un producto prueba",
-  200,
+  400,
   "Sin imagen",
   25
 );
@@ -141,17 +141,59 @@ pm.updateProducts(1, { price: 250 });
 
 pm.getProductsById(4);
 
-pm.deleteProducts(3);
+
 
 
 
 pm.addProducts(
-  "producto prueba4",
+  "producto prueba 5",
   "Este es un producto prueba",
-  200,
+  150,
   "Sin imagen",
   25
 );
+
+
+pm.addProducts(
+  "producto prueba 6",
+  "Este es un producto prueba",
+  110,
+  "Sin imagen",
+  25
+);
+
+pm.addProducts(
+  "producto prueba 7",
+  "Este es un producto prueba",
+  140,
+  "Sin imagen",
+  25
+);
+
+pm.addProducts(
+  "producto prueba 8",
+  "Este es un producto prueba",
+  175,
+  "Sin imagen",
+  25
+);
+
+pm.addProducts(
+  "producto prueba 9",
+  "Este es un producto prueba",
+  100,
+  "Sin imagen",
+  25
+);
+
+pm.addProducts(
+  "producto prueba 10",
+  "Este es un producto prueba",
+  350,
+  "Sin imagen",
+  25
+);
+
 
 pm.loadProducts();
 

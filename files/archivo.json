@@ -1,0 +1,82 @@
+[
+     {
+          "code": 1,
+          "title": "producto prueba 1",
+          "description": "Este es un producto prueba",
+          "price": 250,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 2,
+          "title": "producto prueba 2",
+          "description": "Este es un producto prueba",
+          "price": 300,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 3,
+          "title": "producto prueba 3",
+          "description": "Este es un producto prueba",
+          "price": 200,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 4,
+          "title": "producto prueba 4",
+          "description": "Este es un producto prueba",
+          "price": 400,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 5,
+          "title": "producto prueba 5",
+          "description": "Este es un producto prueba",
+          "price": 150,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 6,
+          "title": "producto prueba 6",
+          "description": "Este es un producto prueba",
+          "price": 110,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 7,
+          "title": "producto prueba 7",
+          "description": "Este es un producto prueba",
+          "price": 140,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 8,
+          "title": "producto prueba 8",
+          "description": "Este es un producto prueba",
+          "price": 175,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 9,
+          "title": "producto prueba 9",
+          "description": "Este es un producto prueba",
+          "price": 100,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     },
+     {
+          "code": 10,
+          "title": "producto prueba 10",
+          "description": "Este es un producto prueba",
+          "price": 350,
+          "thumbnail": "Sin imagen",
+          "stock": 25
+     }
+]
