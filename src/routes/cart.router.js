@@ -12,6 +12,13 @@ cartRouter.post("/", (req, res) => {
     res.status(400).json({ error: `Debe incluirse un array de Productos` });
   }
 
+  if (!Array.isArray(products)) {
+    res.setHeader("Content-Type", "application/json");
+    return res
+      .status(400)
+      .json({ error: `La solicitud PRODUCTS debe ser de tipo ARRAY` });
+  }
+
   for (const product of products) {
     if (!("pid" in product) || !("quantity" in product)) {
       res.setHeader("Content-Type", "application/json");
@@ -23,12 +30,7 @@ cartRouter.post("/", (req, res) => {
     }
   }
 
-  if (!Array.isArray(products)) {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(400)
-      .json({ error: `La solicitud PRODUCTS debe ser de tipo ARRAY` });
-  }
+ 
 
   cm.addCart(products);
 
