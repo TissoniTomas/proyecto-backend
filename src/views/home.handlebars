@@ -1,0 +1,11 @@
+<h1 class="titulo-h1">A continuacion la lista de productos cargados</h1>
+
+<ul id="products">
+    {{#each products}}
+    <li class="item-productos">
+Titulo: {{title}}, Descripcion: {{description}}, Codigo: {{code}}, Precio: {{price}}
+    </li>
+    {{/each}}
+</ul>
+
+<script src="socket.io/socket.io.js"></script>

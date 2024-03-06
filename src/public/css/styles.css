@@ -1,0 +1,14 @@
+.titulo-h1{
+    font-size: 50px;
+}
+
+#products{
+    list-style-type: none;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    font-style: italic;
+}
+
+.item-productos{
+    margin: 50px 0px;
+    color: blueviolet;
+}

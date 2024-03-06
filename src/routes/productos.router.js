@@ -1,10 +1,16 @@
 import { Router } from "express";
+import { io } from '../app.js';
 
 import ProductsManager from "../manager/ProductsManager.js";
 
 const pm = new ProductsManager();
 
 export const productsRouter = Router();
+
+productsRouter.use((req, res, next) => {
+  req.io = io; // Pasar la instancia de Socket.IO al objeto de solicitud
+  next();
+});
 
 productsRouter.get("/", (req, res) => {
   let productosArray = pm.getProducts();
@@ -71,6 +77,10 @@ productsRouter.post("/", (req, res) => {
     res.setHeader("Content-Type", "application/json");
     return res.status(400).json({ error: `${resultado.error}` });
   }
+
+  req.io.emit('productoCreado', nuevoProduct);
+
+  res.send('Producto creado exitosamente');
 
   res.setHeader("Content-Type", "application/json");
   return res.status(200).json({ productoCreado: nuevoProduct });
