@@ -1,104 +1,56 @@
 import { Router } from "express";
-import CartManager from "../manager/CartManager.js";
+import CartManager from "../dao/CartManager.js"
 
 const cm = new CartManager();
 export const cartRouter = Router();
 
-cartRouter.post("/", (req, res) => {
+cartRouter.post("/", async (req, res) => {
   const { products } = req.body;
-  const camposRequeridos = ["products"];
-  const camposAusentes = camposRequeridos.filter((item) => !(item in req.body));
-  if (camposAusentes.length > 0) {
-    res.status(400).json({ error: `Debe incluirse un array de Productos` });
-  }
 
   if (!Array.isArray(products)) {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(400)
-      .json({ error: `La solicitud PRODUCTS debe ser de tipo ARRAY` });
+    return res.status(400).json({ error: "Se debe proporcionar un array de productos" });
   }
 
-  for (const product of products) {
-    if (!("pid" in product) || !("quantity" in product)) {
-      res.setHeader("Content-Type", "application/json");
-      return res
-        .status(400)
-        .json({
-          error: 'Cada producto debe tener las claves "pid" y "quantity"',
-        });
+
+  try {
+    const newCart = await cm.addCart({ products });
+    res.status(201).json(newCart);
+  } catch (error) {
+    res.status(500).json({ error: "Error al agregar el carrito" });
+  }
+});
+
+cartRouter.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const cart = await cm.getCartById(id);
+    if (!cart) {
+      return res.status(404).json({ error: "Carrito no encontrado" });
     }
+    res.status(200).json(cart);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener el carrito" });
   }
-
- 
-
-  cm.addCart(products);
-
-  res.setHeader("Content-Type", "application/json");
-  return res
-    .status(200)
-    .json({ status: "Producto agregado al cart correctamente" });
 });
 
-cartRouter.get("/:id", (req, res) => {
-  let { id } = req.params;
-  id = Number(id);
-
-  if (isNaN(id)) {
-    res.status(400).json({
-      error:
-        "La busqueda no arrojo resultados, el ID debe ser de tipo NUMERICO",
-    });
-    return;
-  }
-
-  let cartID = cm.getCartById(id);
-  if (cartID === null) {
-    res.setHeader("Content-Type", "application/json");
-    return res.status(400).json({
-      error: `La busqueda no arrojo resultados, el elemento buscado no existe`,
-    });
-  }
-
-  res.setHeader("Content-Type", "application/json");
-  return res.status(200).json({ busqueda: cartID });
-});
-
-cartRouter.post("/:id/product/:pid", (req, res) => {
-  let { id, pid } = req.params;
-  id = Number(id);
-  pid = Number(pid);
-
-  if (isNaN(id) || isNaN(pid)) {
-    res.status(400).json({
-      error:
-        "La busqueda no arrojo resultados, el ID debe ser de tipo NUMERICO",
-    });
-    return;
-  }
+cartRouter.post("/:id/product/:pid", async (req, res) => {
+  const { id, pid } = req.params;
   const { quantity } = req.body;
-  if (typeof req.body !== "object" || typeof quantity !== "number") {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(400)
-      .json({
-        error: `Debe proporcionar un objeto con la propiedad QUANTITY y la cantidad a modificar`,
-      });
+
+
+  if (typeof quantity !== "number" || quantity <= 0) {
+    return res.status(400).json({ error: "La cantidad debe ser un número entero positivo" });
   }
 
-  let productoAgregado = cm.addProductToCart(id, pid, quantity);
-
-  if (productoAgregado === null) {
-    res.setHeader("Content-Type", "application/json");
-    return res
-      .status(400)
-      .json({ error: `El carrito a agregarse no existe, revise el ID` });
+  // Agregar el producto al carrito
+  try {
+    const updatedCart = await cm.addProductToCart(id, pid, quantity);
+    if (!updatedCart) {
+      return res.status(404).json({ error: "Carrito no encontrado" });
+    }
+    res.status(200).json(updatedCart);
+  } catch (error) {
+    res.status(500).json({ error: "Error al agregar el producto al carrito" });
   }
-
-  res.setHeader("Content-Type", "application/json");
-  return res
-    .status(200)
-    .json({
-      success: `El producto fue agregado correctamente: ${productoAgregado}`,
-    });
 });

@@ -1,55 +1,58 @@
 import { Router } from "express";
-import { io } from '../app.js';
-
-import ProductsManager from "../manager/ProductsManager.js";
-
-const pm = new ProductsManager();
+import { io } from "../app.js";
+import ProductsManager from "../dao/ProductsManager.js";
+import mongoose from "mongoose";
 
 export const productsRouter = Router();
 
+const pm = new ProductsManager();
+
 productsRouter.use((req, res, next) => {
-  req.io = io; // Pasar la instancia de Socket.IO al objeto de solicitud
+  req.io = io;
   next();
 });
 
-productsRouter.get("/", (req, res) => {
-  let productosArray = pm.getProducts();
-  let { limit } = req.query;
-
-  if (!productosArray) {
+productsRouter.get("/", async (req, res) => {
+  try {
+    let productsArray = await pm.getProducts();
+    let { limit } = req.query;
+    if (limit && limit > 0) {
+      productsArray = productsArray.slice(0, limit);
+      res.json(productsArray);
+      return;
+    }
+    return res.json(productsArray);
+  } catch (error) {
     res
       .status(500)
       .json({ error: "Error interno, intente nuevamente mas tarde" });
     return;
   }
-  if (limit && limit > 0) {
-    productosArray = productosArray.slice(0, limit);
-    res.json(productosArray);
-    return;
-  }
-
-  res.json(productosArray);
 });
 
-productsRouter.get("/:id", (req, res) => {
+productsRouter.get("/:id", async (req, res) => {
   let { id } = req.params;
-  id = Number(id);
 
-  if (isNaN(id)) {
-    res.send(
-      "La busqueda no arrojo resultados, revise que el ID ingresado sea NUMERICO"
-    );
-    return;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.setHeader("Content-Type", "application/json");
+    return res.status(400).json({ error: `ID Invalido ` });
   }
-  let resultadoFind = pm.getProductsById(id);
-  res.status(200).json(resultadoFind);
+
+  try {
+    let resultadoFind = await pm.getProductsById(id);
+    if (!resultadoFind) {
+      return res
+        .status(400)
+        .json({ resultado: "No se encuentra el usuario con el id", id });
+    }
+
+    return res.status(200).json(resultadoFind);
+  } catch (error) {
+    return res.status(500).json({ error: "La busqueda no arroja resultados" });
+  }
 });
 
-productsRouter.get("/*", (req, res) => {
-  res.status(400).json("ERROR 404 - NOT FOUND");
-});
-
-productsRouter.post("/", (req, res) => {
+productsRouter.post("/", async (req, res) => {
   // Verificar campos faltantes
   const camposRequeridos = [
     "title",
@@ -71,61 +74,83 @@ productsRouter.post("/", (req, res) => {
 
   const nuevoProduct = { ...req.body, status: true };
 
-  let resultado = pm.addProducts(nuevoProduct);
+  let resultado = await pm.addProducts(nuevoProduct);
 
   if (resultado && resultado.error) {
     res.setHeader("Content-Type", "application/json");
     return res.status(400).json({ error: `${resultado.error}` });
   }
 
-  req.io.emit('productoCreado', nuevoProduct);
-
-  res.send('Producto creado exitosamente');
+  req.io.emit("productoCreado", resultado);
 
   res.setHeader("Content-Type", "application/json");
-  return res.status(200).json({ productoCreado: nuevoProduct });
+  return res.status(200).json({ productoCreado: resultado });
 });
 
-productsRouter.put("/:id", (req, res) => {
+productsRouter.put("/:id", async (req, res) => {
   let { id } = req.params;
-  id = Number(id);
 
-  if (isNaN(id)) {
-    res
-      .status(400)
-      .json({
-        error:
-          "La busqueda no arrojo resultados,  revise que el ID ingresado sea NUMERICO",
-      });
-    return;
-  }
-  let productoActualizado = pm.updateProducts(id, req.body);
-  if (productoActualizado && productoActualizado.error) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     res.setHeader("Content-Type", "application/json");
-    return res.status(400).json({ error: `${productoActualizado.error}` });
+    return res.status(400).json({ error: `ID Invalido ` });
   }
-  res.setHeader("Content-Type", "application/json");
-  return res.status(200).json({ prodcutoModificado: productoActualizado });
+
+  let datosAModificar = req.body;
+
+  if (datosAModificar._id) {
+    delete datosAModificar._id;
+  }
+
+  if (datosAModificar.code) {
+    let existe = await pm.getProductBy({
+      code: datosAModificar.code,
+      _id: { $ne: id },
+    });
+    if (existe) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(400)
+        .json({ error: `Code ya existente en usuario ${id}` });
+    }
+  }
+
+  try {
+    let productoActualizado = pm.updateProducts(id, datosAModificar);
+    if ((await productoActualizado.modifiedCount) > 0) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(200)
+        .json({ estado: `Usuario actualizado con id ${id}` });
+    }
+  } catch (error) {
+    res.setHeader("Content-Type", "application/json");
+    return res.status(400).json({ error: `${error.message}` });
+  }
 });
 
-productsRouter.delete("/:id", (req, res) => {
+productsRouter.delete("/:id", async (req, res) => {
   let { id } = req.params;
-  id = Number(id);
 
-  if (isNaN(id)) {
-    res
-      .status(400)
-      .json({
-        error:
-          "La busqueda no arrojo resultados,  revise que el ID ingresado sea NUMERICO",
-      });
-    return;
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    res.setHeader("Content-Type", "application/json");
+    return res.status(400).json({ error: `ID Invalido ` });
   }
-  let productoDelete = pm.deleteProducts(id);
-  res.setHeader("Content-Type", "application/json");
-  return res
-    .status(200)
-    .json({
-      prodcutoEliminado: `${productoDelete.title}, ID: ${productoDelete.id}`,
-    });
+
+  
+  try {
+    let productoDelete = pm.deleteProducts(id);
+    if (((await productoDelete).deletedCount) > 0) {
+      res.setHeader("Content-Type", "application/json");
+      return res
+        .status(200)
+        .json({ estado: `Usuario eliminado con id ${id}` });
+    }
+  } catch (error) {
+    res.setHeader("Content-Type", "application/json");
+    return res.status(400).json({ error: `${error.message}` });
+  }
+});
+
+productsRouter.get("/*", (req, res) => {
+  res.status(400).json("ERROR 404 - NOT FOUND");
 });
