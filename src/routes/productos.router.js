@@ -52,6 +52,7 @@ productsRouter.get("/:id", async (req, res) => {
   }
 });
 
+
 productsRouter.post("/", async (req, res) => {
   // Verificar campos faltantes
   const camposRequeridos = [

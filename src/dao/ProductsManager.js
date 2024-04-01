@@ -1,9 +1,12 @@
 import { modeloProductos } from "./models/productos.modelo.js";
+import mongoose from "mongoose";
 
 class ProductManager {
   async getProducts() {
-    return await modeloProductos.find();
+    return await modeloProductos.find().lean();
   }
+
+
 
   async addProducts(prod) {
     let productoRepetido = await this.getProductsByCode(prod.code);

@@ -1,4 +1,5 @@
 import { modelCart } from "./models/cart.modelo.js";
+import { modeloProductos } from "./models/productos.modelo.js";
 
 class CartManager {
   async getCarts() {
@@ -10,7 +11,7 @@ class CartManager {
   }
 
   async getCartById(id) {
-    return await modelCart.findOne({ _id: id });
+    return await modelCart.find({ _id: id });
   }
 
   async updateCart(id, update = {}) {

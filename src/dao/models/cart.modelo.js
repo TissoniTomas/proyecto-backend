@@ -1,21 +1,37 @@
 import mongoose from "mongoose";
+import { modeloProductos } from "./productos.modelo.js";
+
 
 const cartColl = "cart";
 const cartSchema = new mongoose.Schema(
   {
-    // Identificador único generado por MongoDB
-     // Tipo de dato: Número entero
-    products: [
-      {
-        pid: Number, // Tipo de dato: Número entero (identificador de producto)
-        quantity: Number, // Tipo de dato: Número entero (cantidad)
-      },
-    ],
+    carrito: String,
+    products: {
+      type: [
+        {
+          producto: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "modeloProductos",
+          },
+          quantity: Number,
+        },
+      ],
+    },
   },
   {
     timestamps: true,
     strict: false,
   }
 );
+
+// Middleware PRE por instruccion
+cartSchema.pre("find", function(){
+  this.populate({
+    path:'products.producto',
+    model: modeloProductos,
+    
+  }).lean()
+})
+
 
 export const modelCart = mongoose.model(cartColl, cartSchema);
