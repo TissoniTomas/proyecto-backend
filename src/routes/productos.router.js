@@ -2,6 +2,7 @@ import { Router } from "express";
 import { io } from "../app.js";
 import ProductsManager from "../dao/ProductsManager.js";
 import mongoose from "mongoose";
+import { modeloProductos } from "../dao/models/productos.modelo.js";
 
 export const productsRouter = Router();
 
@@ -14,21 +15,58 @@ productsRouter.use((req, res, next) => {
 
 productsRouter.get("/", async (req, res) => {
   try {
-    let productsArray = await pm.getProducts();
-    let { limit } = req.query;
-    if (limit && limit > 0) {
-      productsArray = productsArray.slice(0, limit);
-      res.json(productsArray);
-      return;
+    let { page, limit, sort, query } = req.query;
+
+    // Establecer valores predeterminados para limit, sort y page si no se proporcionan
+    limit = limit ? parseInt(limit) : 10;
+    sort = sort === "-1" ? -1 : 1;
+    page = page ? parseInt(page) : 1;
+
+    if (!query) {
+      // Paginación sin filtro
+      const result = await modeloProductos.paginate({}, { limit, page, lean: true, sort: { code: sort } });
+
+      // Construir enlaces para las páginas previas y siguientes
+      const prevLink = result.prevPage ? `${req.baseUrl}?page=${result.prevPage}&limit=${limit}&sort=${sort}` : null;
+      const nextLink = result.nextPage ? `${req.baseUrl}?page=${result.nextPage}&limit=${limit}&sort=${sort}` : null;
+
+      res.status(200).json({
+        status: "success",
+        totalPages: result.totalPages,
+        prevPage: result.prevPage,
+        nextPage: result.nextPage,
+        hasNextPage: result.hasNextPage,
+        hasPrevPage: result.hasPrevPage,
+        prevLink,
+        nextLink,
+        payload: result.docs, // Devolver solo los documentos de la página actual
+      });
+    } else {
+      // Paginación con filtro
+      const result = await modeloProductos.paginate({ query }, { limit, page, lean: true, sort: { code: sort } });
+
+      // Construir enlaces para las páginas previas y siguientes
+      const prevLink = result.prevPage ? `${req.baseUrl}?page=${result.prevPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+      const nextLink = result.nextPage ? `${req.baseUrl}?page=${result.nextPage}&limit=${limit}&sort=${sort}&query=${query}` : null;
+
+      res.status(200).json({
+        status: "success",
+        totalPages: result.totalPages,
+        prevPage: result.prevPage,
+        nextPage: result.nextPage,
+        hasNextPage: result.hasNextPage,
+        hasPrevPage: result.hasPrevPage,
+        prevLink,
+        nextLink,
+        payload: result.docs, // Devolver solo los documentos de la página actual
+      });
     }
-    return res.json(productsArray);
   } catch (error) {
-    res
-      .status(500)
-      .json({ error: "Error interno, intente nuevamente mas tarde" });
-    return;
+    console.error(error);
+    res.status(500).json({ status: "Error interno, intente nuevamente más tarde" });
   }
 });
+
 
 productsRouter.get("/:id", async (req, res) => {
   let { id } = req.params;
@@ -51,7 +89,6 @@ productsRouter.get("/:id", async (req, res) => {
     return res.status(500).json({ error: "La busqueda no arroja resultados" });
   }
 });
-
 
 productsRouter.post("/", async (req, res) => {
   // Verificar campos faltantes
@@ -137,14 +174,11 @@ productsRouter.delete("/:id", async (req, res) => {
     return res.status(400).json({ error: `ID Invalido ` });
   }
 
-  
   try {
     let productoDelete = pm.deleteProducts(id);
-    if (((await productoDelete).deletedCount) > 0) {
+    if ((await productoDelete).deletedCount > 0) {
       res.setHeader("Content-Type", "application/json");
-      return res
-        .status(200)
-        .json({ estado: `Usuario eliminado con id ${id}` });
+      return res.status(200).json({ estado: `Usuario eliminado con id ${id}` });
     }
   } catch (error) {
     res.setHeader("Content-Type", "application/json");

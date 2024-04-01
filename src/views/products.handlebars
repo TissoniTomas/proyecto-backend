@@ -1,0 +1,37 @@
+ <h1>Lista de Productos </h1>
+   <ul>
+        {{#each docs}}
+            <li>
+                <p>Nombre: {{title}}</p>
+                <p>Precio: ${{price}}</p>
+                <p>Code: {{code}}</p>
+                <!-- Agregar al Carrito -->
+                <form action="/api/carts" method="post">
+                    <input type="hidden" name="productId" value="{{_id}}">
+                    <label for="quantity">Cantidad</label>
+                    <input type="text" name="quantity">
+                    <button type="submit">Agregar al Carrito</button>
+                </form>
+            </li>
+        {{/each}}
+    </ul>
+    <a href="/products?page=1">Pagina 1</a>
+    {{#if hasPrevPage}}
+
+    <a href="/products?page={{prevPage}}">Pagina anterior</a>
+
+    {{/if}}
+      {{#if hasNextPage}}
+
+    <a href="/products?page={{nextPage}}">Pagina siguiente</a>
+
+    {{/if}}
+
+
+    <a href="/products?page={{totalPages}}">Ultima Page</a>
+
+    <script type="module" src="/js/products.js"></script>
+
+
+
+

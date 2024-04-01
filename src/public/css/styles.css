@@ -31,3 +31,10 @@
     display: inline-block;
     margin-top: 5px;
 }
+.buttonCart{
+    background-color: cyan;
+    font-size: 20px;
+}
+.listaProducts{
+    background-color: red;
+}
